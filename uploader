@@ -1,0 +1,31 @@
+#!/home/ashishw/Tools/groovy/sdk/latest/bin/groovy
+
+import groovy.json.JsonBuilder
+
+def url = new URL('http://127.0.0.1:9200/')
+def connection = url.openConnection()
+connection.requestMethod = 'GET'
+if (connection.responseCode == 200) {
+   println connection.content.text
+   println connection.contentType
+   println connection.lastModified
+   connection.headerFields.each { println "> ${it}"}} 
+else {
+   println 'An error occurred: ' +
+   connection.responseCode + ' ' +
+   connection.responseMessage
+}
+
+
+def buildOject(String line) {
+   def builder = new JsonBuilder()
+   def values=line.split(",")
+   builder.person {
+	first_name values[0]
+   	last_name values[1]
+   }
+   println builder.toPrettyString()
+}
+
+file = new File('us-500.csv')
+// file.each{line -> buildOject line} 
