@@ -1,0 +1,60 @@
+#!/home/ashishw/Tools/groovy/sdk/latest/bin/groovy
+
+import groovy.json.JsonBuilder
+
+
+def buildOject(java.lang.String line) {
+   int counter=1;
+   def builder = new JsonBuilder()
+   def values=line.split(",")
+   StringBuffer buffer = new StringBuffer()
+   builder.index{
+   }
+   buffer.append(builder.toString()).append("\n")
+//permalink,company,numEmps,category,city,state,fundedDate,raisedAmt,raisedCurrency,round   
+   builder {
+	permalink values[0]
+   	company values[1]
+	numEmps values[2]
+//	category values[3]
+//	city values[4]
+	state values[5]
+	fundedDate values[6]
+	raisedAmt Float.parseFloat(values[7]) 
+//	raisedCurrency [8] 
+//	round [9] 
+	}
+    
+    buffer.append(builder.toString()).append("\n")
+    return buffer
+}
+
+file = new File('TechCrunchcontinentalUSA.csv')
+StringBuffer result=new StringBuffer();
+file.each{line -> result.append(buildOject(line)) }
+println result
+
+def host='http://127.0.0.1:9200'
+def param='/demo/company/_bulk'
+def url = new URL(host+param)
+def connection = url.openConnection()
+connection.requestMethod = 'POST'
+connection.doOutput = true
+
+def writer = new OutputStreamWriter(connection.outputStream)
+    writer.write(result.toString())
+    writer.flush()
+    writer.close()
+    connection.connect()
+
+if (connection.responseCode == 200) {
+//   println connection.content.text
+//   println connection.contentType
+//   println connection.lastModified
+//   connection.headerFields.each { println "> ${it}"}} 
+}
+else {
+   println 'An error occurred: ' +
+   connection.responseCode + ' ' +
+   connection.responseMessage
+}
