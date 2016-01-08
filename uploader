@@ -2,30 +2,61 @@
 
 import groovy.json.JsonBuilder
 
-def url = new URL('http://127.0.0.1:9200/')
+
+def buildOject(java.lang.String line) {
+   int counter=1;
+   def builder = new JsonBuilder()
+   def values=line.split(",")
+   StringBuffer buffer = new StringBuffer()
+   builder.index{
+   }
+   buffer.append(builder.toString()).append("\n")
+   
+   builder {
+	first_name values[0]
+   	last_name values[1]
+	company_name values[2]
+//	address	values[3]
+//	city values values[4]
+	county values[5]
+	state values[6]
+	zip values[7] 
+//	phone1 [8] 
+//	phone2 [9] 
+//	email [10] 
+//	web [11]
+	}
+    
+    buffer.append(builder.toString()).append("\n")
+    return buffer
+}
+
+file = new File('us-500.csv')
+StringBuffer result=new StringBuffer();
+file.each{line -> result.append(buildOject(line)) }
+println result
+
+def host='http://127.0.0.1:9200'
+def param='/demo/employee/_bulk'
+def url = new URL(host+param)
 def connection = url.openConnection()
-connection.requestMethod = 'GET'
+connection.requestMethod = 'POST'
+connection.doOutput = true
+
+def writer = new OutputStreamWriter(connection.outputStream)
+    writer.write(result.toString())
+    writer.flush()
+    writer.close()
+    connection.connect()
+
 if (connection.responseCode == 200) {
-   println connection.content.text
-   println connection.contentType
-   println connection.lastModified
-   connection.headerFields.each { println "> ${it}"}} 
+//   println connection.content.text
+//   println connection.contentType
+//   println connection.lastModified
+//   connection.headerFields.each { println "> ${it}"}} 
+}
 else {
    println 'An error occurred: ' +
    connection.responseCode + ' ' +
    connection.responseMessage
 }
-
-
-def buildOject(String line) {
-   def builder = new JsonBuilder()
-   def values=line.split(",")
-   builder.person {
-	first_name values[0]
-   	last_name values[1]
-   }
-   println builder.toPrettyString()
-}
-
-file = new File('us-500.csv')
-// file.each{line -> buildOject line} 
